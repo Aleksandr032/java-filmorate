@@ -15,8 +15,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     private int idCounter = 0;
 
     @Override
-    public Film addFilm(Film film){
-        if (films.containsKey(film.getId())){
+    public Film addFilm(Film film) {
+        if (films.containsKey(film.getId())) {
             throw new ValidationException("Данный фильм уже есть в базе");
         }
         int filmId = ++idCounter;
@@ -24,16 +24,18 @@ public class InMemoryFilmStorage implements FilmStorage {
         films.put(filmId, film);
         return film;
     }
+
     @Override
     public Film updateFilm(Film film) {
-        if (!films.containsKey(film.getId())){
+        if (!films.containsKey(film.getId())) {
             throw new ValidationException("Данного фильма ещё нет в базе");
         }
         films.put(film.getId(), film);
         return film;
     }
+
     @Override
-    public List<Film> getFilms(){
+    public List<Film> getFilms() {
         List<Film> listByFilms = new ArrayList<>(films.values());
         return listByFilms;
     }

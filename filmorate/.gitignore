@@ -18,6 +18,10 @@ target/
 *.iws
 *.iml
 *.ipr
+.idea
+./filmorate/mvnw
+./filmorate/mvnw.cmd
+./filmorate/.mvn
 
 ### NetBeans ###
 /nbproject/private/

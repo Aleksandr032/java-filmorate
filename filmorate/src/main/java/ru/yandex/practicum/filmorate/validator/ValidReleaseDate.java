@@ -20,5 +20,6 @@ public @interface ValidReleaseDate {
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
+
     String value() default "1895-12-28";
 }

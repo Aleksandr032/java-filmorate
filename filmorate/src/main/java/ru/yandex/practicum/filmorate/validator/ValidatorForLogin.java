@@ -5,7 +5,6 @@ import javax.validation.ConstraintValidatorContext;
 
 public class ValidatorForLogin implements ConstraintValidator<ValidUserLogin, String> {
     String login;
-    boolean valid;
 
     @Override
     public void initialize(final ValidUserLogin constraintAnnotation) {
