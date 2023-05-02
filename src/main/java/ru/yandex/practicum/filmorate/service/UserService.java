@@ -17,12 +17,10 @@ public class UserService {
     private UserStorage userStorage;
 
     public User addUser(User user) {
-        //useLoginAsName(user, "добавлен");
         return userStorage.addUser(user);
     }
 
     public User updateUser(User user) {
-        //useLoginAsName(user, "обновлен");
         return userStorage.updateUser(user);
     }
 

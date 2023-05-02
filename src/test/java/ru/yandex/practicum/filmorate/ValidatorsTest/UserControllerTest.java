@@ -2,25 +2,29 @@ package ru.yandex.practicum.filmorate.ValidatorsTest;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class UserControllerTest {
+    private Validator validator;
     private User user;
     private User user1;
     private User user2;
-    private UserController controller;
+    private User user3;
+    private User user4;
 
     @BeforeEach
     void createUser() {
-        controller = new UserController(new UserService(new InMemoryUserStorage()));
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        validator = factory.getValidator();
         user = new User();
         user.setId(1);
         user.setEmail("allCorrect@yandex.ru");
@@ -37,28 +41,52 @@ public class UserControllerTest {
         user2 = new User();
         user2.setId(3);
         user2.setEmail("nameIsEmpty@yandex.ru");
-        user2.setLogin("Legion Commander");
+        user2.setLogin("LegionCommander");
         user2.setName(" ");
         user2.setBirthday(LocalDate.of(1200, 1, 1));
+
+        user3 = new User();
+        user3.setId(4);
+        user3.setEmail("withoutLogin@yandex.ru");
+        user3.setName("Puck");
+        user3.setBirthday(LocalDate.of(1200, 1, 1));
+
+        user4 = new User();
+        user4.setId(4);
+        user4.setEmail("loginWithBlank@yandex.ru");
+        user4.setLogin("Legion Commander");
+        user4.setName("Puck");
+        user4.setBirthday(LocalDate.of(1200, 1, 1));
     }
 
     @Test
     void checkCorrectValidationUserTest() {
-        controller.addUser(user);
-        List<User> users = controller.getUsers();
-        assertEquals(List.of(user), users);
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        assertEquals(0, violations.size());
     }
 
     @Test
     void checkWithoutNameUserTest() {
-        controller.addUser(user1);
-        assertEquals("Pudge", user1.getName());
+        Set<ConstraintViolation<User>> violations = validator.validate(user1);
+        assertEquals(0, violations.size());
     }
 
     @Test
-    void checkNameIsEmptyUserTest() {
-        controller.addUser(user2);
-        assertEquals("Legion Commander", user2.getName());
+    void checkBlankNameUserTest() {
+        Set<ConstraintViolation<User>> violations = validator.validate(user2);
+        assertEquals(0, violations.size());
+    }
+
+    @Test
+    void checkWithoutLoginUserTest() {
+        Set<ConstraintViolation<User>> violations = validator.validate(user3);
+        assertEquals(1, violations.size());
+    }
+
+    @Test
+    void checkLoginWithBlankUserTest() {
+        Set<ConstraintViolation<User>> violations = validator.validate(user4);
+        assertEquals(1, violations.size());
     }
 }
 

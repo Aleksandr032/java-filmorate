@@ -19,7 +19,6 @@ public class FilmController {
 
     @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
-        filmService.checkValidReleaseDate(film, "добавлен");
         return filmService.addFilm(film);
     }
 
@@ -31,7 +30,6 @@ public class FilmController {
 
     @PutMapping
     public Film updateFilm(@RequestBody Film film) {
-        filmService.checkValidReleaseDate(film, "обновлен");
         return filmService.updateFilm(film);
     }
 }

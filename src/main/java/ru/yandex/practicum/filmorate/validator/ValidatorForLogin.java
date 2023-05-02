@@ -13,6 +13,9 @@ public class ValidatorForLogin implements ConstraintValidator<ValidUserLogin, St
 
     @Override
     public boolean isValid(String login, ConstraintValidatorContext context) {
-        return !(login.contains(" "));
+        if (login == null) {
+            return false;
+        }
+        return (!(login.contains(" ")));
     }
 }
