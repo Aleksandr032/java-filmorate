@@ -16,6 +16,6 @@ public class ValidatorForLogin implements ConstraintValidator<ValidUserLogin, St
         if (login == null) {
             return false;
         }
-        return (!(login.contains(" ")));
+        return !(login.contains(" "));
     }
 }

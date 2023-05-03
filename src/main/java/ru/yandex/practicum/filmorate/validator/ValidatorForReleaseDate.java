@@ -14,6 +14,6 @@ public class ValidatorForReleaseDate implements ConstraintValidator<ValidRelease
 
     @Override
     public boolean isValid(LocalDate value, ConstraintValidatorContext context) {
-        return !value.isBefore(LocalDate.of(1895, 12, 28));   //true, если указанная дата не раньше 28.12.1895
+        return !value.isBefore(minimumDate);   //true, если указанная дата не раньше 28.12.1895
     }
 }
