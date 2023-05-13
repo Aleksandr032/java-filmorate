@@ -20,6 +20,7 @@ public class UserService {
     }
 
     public User updateUser(User user) {
+        useLoginAsName(user, "обновлен");
         return userStorage.updateUser(user);
     }
 

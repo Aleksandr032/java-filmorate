@@ -50,7 +50,6 @@ public class UserController {
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
-        userService.useLoginAsName(user, "обновлен");
         return userService.updateUser(user);
     }
 
