@@ -1,7 +1,7 @@
 # java-filmorate
 ER-диаграмма проекта Filmor
 
-![Untitled (1).png](Untitled%20%281%29.png)
+![Untitled.png](Untitled.png)
 
 Пример запроса на получение списка 5 наиболее популярных фильмов  
 
