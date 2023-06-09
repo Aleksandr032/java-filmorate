@@ -31,7 +31,7 @@ target/
 mvnw
 mvnw.cmd
 /.mvn
-
+/db
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/

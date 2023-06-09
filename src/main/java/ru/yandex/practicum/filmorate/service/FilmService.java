@@ -1,29 +1,59 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundObject;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.storage.*;
 
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 @Service
-@AllArgsConstructor
 @Slf4j
 public class FilmService {
-    private FilmStorage filmStorage;
-    private UserStorage userStorage;
+
+    private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
+    private final LikeStorage likeStorage;
+    private final FilmGenreStorage filmGenreStorage;
+    private final GenreStorage genreStorage;
+
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
+                       @Qualifier("userDbStorage") UserStorage userStorage,
+                       @Qualifier("likeDbStorage") LikeStorage likeStorage,
+                       @Qualifier("filmGenreDbStorage") FilmGenreStorage filmGenreStorage,
+                       @Qualifier("genreDbStorage") GenreStorage genreStorage) {
+        this.userStorage = userStorage;
+        this.filmStorage = filmStorage;
+        this.likeStorage = likeStorage;
+        this.filmGenreStorage = filmGenreStorage;
+        this.genreStorage = genreStorage;
+    }
 
     public Film addFilm(Film film) {
-        return filmStorage.addFilm(film);
+        Film newFilm = filmStorage.addFilm(film);
+        film.setId(newFilm.getId());
+        if (film.getGenres() != null) {
+            for (Genre genre : film.getGenres()) {
+                filmGenreStorage.addGenre(film.getId(), genre.getId());
+            }
+        }
+        return film;
     }
 
     public Film updateFilm(Film film) {
-        return filmStorage.updateFilm(film);
+        filmGenreStorage.removeGenreByFilmId(film.getId());
+        filmStorage.updateFilm(film);
+        if (film.getGenres() != null) {
+            for (Genre genre : film.getGenres()) {
+                filmGenreStorage.addGenre(film.getId(), genre.getId());
+            }
+        }
+        return film;
     }
 
     public List<Film> getFilms() {
@@ -31,51 +61,49 @@ public class FilmService {
     }
 
     public Film getFilmById(Long id) {
-        return filmStorage.getFilmById(id);
-    }
+        Film film = filmStorage.getFilmById(id);
+        if (film == null) {
+            throw new NotFoundObject("Фильма", id);
+        } else {
+            Set<Long> genresId = filmGenreStorage.getGenreByFilmId(id);
+            LinkedHashSet<Genre> genres = new LinkedHashSet<>();
 
-    public void deleteFriend(Long userId, Long friendId) {
-        User user = userStorage.getUserById(userId);
-        User friend = userStorage.getUserById(friendId);
-        user.getFriends().remove(friendId);
-        friend.getFriends().remove(userId);
-    }
-
-    public List<User> getFriends(Long userId) {
-        User user = userStorage.getUserById(userId);
-        return user
-                .getFriends()
-                .stream()
-                .map(userStorage::getUserById)
-                .collect(Collectors.toList());
-    }
-
-    public List<User> getCommonFriends(Long userId, Long otherUserId) {
-        User user = userStorage.getUserById(userId);
-        User otherUser = userStorage.getUserById(otherUserId);
-        return user
-                .getFriends()
-                .stream()
-                .filter(friendId -> otherUser.getFriends().contains(friendId))
-                .map(userStorage::getUserById)
-                .collect(Collectors.toList());
-    }
-
-    public List<Film> getFilmsPopular(Long count) {
-        return getFilms()
-                .stream()
-                .filter(film -> film.getLikes() != null)
-                .sorted((t1, t2) -> t2.getLikes().size() - t1.getLikes().size())
-                .limit(count)
-                .collect(Collectors.toList());
+            for (Long genreId : genresId) {
+                genres.add(genreStorage.getGenreById(genreId));
+            }
+            film.setGenres(genres);
+        }
+        return film;
     }
 
     public void addLike(Long filmId, Long userId) {
-        filmStorage.getFilmById(filmId).getLikes().add(userId);
+        checkUser(userId);
+        checkFilm(filmId);
+        likeStorage.addLike(filmId, userId);
     }
 
-    public void deleteLike(Long filmId, Long userId) {
-        User user = userStorage.getUserById(userId);
-        filmStorage.getFilmById(filmId).getLikes().remove(user.getId());
+    public void removeLike(Long filmId, Long userId) {
+        checkUser(userId);
+        checkFilm(filmId);
+        likeStorage.removeLike(filmId, userId);
+    }
+
+    public List<Film> getFilmsPopular(Long count) {
+        List<Film> popularFilms = likeStorage.getFilmsPopular(count);
+        return popularFilms.subList(0, popularFilms.size());
+    }
+
+    private void checkFilm(Long id) {
+        if (filmStorage.getFilmById(id) == null) {
+            log.warn("Фильм с идентификатором: " + id + " не найден");
+            throw new NotFoundObject("Фильм", id);
+        }
+    }
+
+    private void checkUser(Long id) {
+        if (userStorage.getUserById(id) == null) {
+            log.warn("Пользователь с идентификатором: " + id + " не найден");
+            throw new NotFoundObject("Пользователь", id);
+        }
     }
 }

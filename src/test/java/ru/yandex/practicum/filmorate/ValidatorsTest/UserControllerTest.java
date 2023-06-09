@@ -2,24 +2,18 @@ package ru.yandex.practicum.filmorate.ValidatorsTest;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class UserControllerTest {
-    UserController userController;
     private Validator validator;
     private User user;
     private User user1;
@@ -34,7 +28,6 @@ public class UserControllerTest {
     void createUser() {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
-        userController = new UserController(new UserService(new InMemoryUserStorage()));
 
         user = new User();
         user.setId(1L);
@@ -113,25 +106,6 @@ public class UserControllerTest {
     void checkWithoutLoginUserTest() {
         Set<ConstraintViolation<User>> violations = validator.validate(user3);
         assertEquals(1, violations.size());
-    }
-
-    @Test
-    void checkAddFriendTest() {
-        userController.addUser(user);
-        userController.addUser(user1);
-        userController.addUser(user2);
-        userController.addUser(user5);
-        userController.addUser(user6);
-        userController.addUser(user7);
-        userController.addFriend(user.getId(), user1.getId());
-        userController.addFriend(user.getId(), user2.getId());
-        userController.addFriend(user.getId(), user5.getId());
-        userController.addFriend(user1.getId(), user2.getId());
-        userController.addFriend(user1.getId(), user6.getId());
-        List<User> commonFriends = userController.getCommonFriends(user.getId(), user1.getId());
-        assertEquals(1, commonFriends.size());
-        assertTrue(commonFriends.contains(user2));
-        assertEquals(3, userController.getFriends(user.getId()).size());
     }
 }
 
