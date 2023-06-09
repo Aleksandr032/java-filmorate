@@ -25,5 +25,6 @@ public class User {
     private String name;
     @PastOrPresent(message = "Укажите корретную дату рождения")
     private LocalDate birthday;
+    @Builder.Default
     private Set<Long> friends = new HashSet<>();
 }

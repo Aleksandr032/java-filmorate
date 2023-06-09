@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -25,7 +24,6 @@ import java.util.*;
 @Slf4j
 @Component
 public class FilmDbStorage implements FilmStorage {
-    @Autowired
     private final JdbcTemplate jdbcTemplate;
     private final FilmGenreStorage filmGenreStorage;
     private final GenreStorage genreStorage;
@@ -53,7 +51,8 @@ public class FilmDbStorage implements FilmStorage {
             return stmt;
         }, keyHolder);
         Long id = Objects.requireNonNull(keyHolder.getKey()).longValue();
-        return getFilmById(id);
+        film.setId(id);
+        return film;
     }
 
     @Override
@@ -91,7 +90,7 @@ public class FilmDbStorage implements FilmStorage {
 
         Long filmId = film.getId();
         Set<Long> genresId = filmGenreStorage.getGenreByFilmId(filmId);
-        LinkedHashSet<Genre> genres = new LinkedHashSet<>();
+        Set<Genre> genres = new TreeSet<>(Comparator.comparingLong(Genre::getId));
         for (Long genreId : genresId) {
             genres.add(genreStorage.getGenreById(genreId));
         }

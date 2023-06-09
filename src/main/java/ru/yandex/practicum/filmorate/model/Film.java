@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +13,9 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 
 import java.time.LocalDate;
-import java.util.LinkedHashSet;
+import java.util.Comparator;
+import java.util.Set;
+import java.util.TreeSet;
 
 @Data
 @AllArgsConstructor
@@ -31,5 +34,12 @@ public class Film {
     @Positive(message = "Продолжительнсть фильма не может быть отрицательной или 0")
     private int duration;
     private Mpa mpa;
-    private LinkedHashSet<Genre> genres = new LinkedHashSet<>();
+    @Builder.Default
+    private Set<Genre> genres = new TreeSet<>(Comparator.comparingLong(Genre::getId));
+
+    @JsonSetter
+    public void setGenres(Set<Genre> genres) {
+        this.genres.clear();
+        this.genres.addAll(genres);
+    }
 }

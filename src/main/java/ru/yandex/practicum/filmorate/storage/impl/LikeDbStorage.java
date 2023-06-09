@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -9,14 +8,12 @@ import ru.yandex.practicum.filmorate.storage.LikeStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 @Component
 public class LikeDbStorage implements LikeStorage {
     private final JdbcTemplate jdbcTemplate;
 
-    @Autowired
     public LikeDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -53,7 +50,6 @@ public class LikeDbStorage implements LikeStorage {
                 .releaseDate(resultSet.getDate("RELEASE_DATE").toLocalDate())
                 .duration(resultSet.getInt("DURATION"))
                 .mpa(mpa)
-                .genres(new LinkedHashSet<>())
                 .build();
     }
 
